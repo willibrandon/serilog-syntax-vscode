@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { findSerilogRanges } from './utils/serilogDetector';
 import { StringLiteralParser } from './utils/stringLiteralParser';
 import { parseTemplate } from './parsers/templateParser';
+import { ExpressionParser } from './parsers/expressionParser';
 import { DecorationManager } from './decorations/decorationManager';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -25,6 +26,16 @@ export function activate(context: vscode.ExtensionContext) {
         const alignmentDecorations: vscode.DecorationOptions[] = [];
         const positionalDecorations: vscode.DecorationOptions[] = [];
 
+        // Expression decorations
+        const expressionOperatorDecorations: vscode.DecorationOptions[] = [];
+        const expressionFunctionDecorations: vscode.DecorationOptions[] = [];
+        const expressionBuiltinDecorations: vscode.DecorationOptions[] = [];
+        const expressionDirectiveDecorations: vscode.DecorationOptions[] = [];
+        const expressionStringDecorations: vscode.DecorationOptions[] = [];
+        const expressionNumberDecorations: vscode.DecorationOptions[] = [];
+        const expressionKeywordDecorations: vscode.DecorationOptions[] = [];
+        const expressionIdentifierDecorations: vscode.DecorationOptions[] = [];
+
         const serilogRanges = findSerilogRanges(editor.document);
 
         // Process each Serilog call line
@@ -44,10 +55,108 @@ export function activate(context: vscode.ExtensionContext) {
                 const templateContent = literal.content;
                 const templateStartOffset = lineStartOffset + literal.contentStart;
 
-                // Parse the template
-                const properties = parseTemplate(templateContent);
+                // For WithComputed, only the second string is an expression
+                let isWithComputedSecondString = false;
+                if (lineText.includes('Enrich.WithComputed')) {
+                    // Check if this is the second string (after the first comma)
+                    const beforeLiteral = lineText.substring(0, literal.contentStart);
+                    const commaCount = (beforeLiteral.match(/,/g) || []).length;
+                    isWithComputedSecondString = commaCount >= 1;
+                }
 
-                for (const property of properties) {
+                // Check if this is an expression context by looking at the API call
+                const isExpressionAPI = lineText.includes('new ExpressionTemplate(') ||
+                                      lineText.includes('Filter.ByExcluding') ||
+                                      lineText.includes('Filter.ByIncluding') ||
+                                      lineText.includes('Enrich.When') ||
+                                      isWithComputedSecondString ||
+                                      lineText.includes('.Conditional(');
+
+                // Even if in expression API context, check if the content is actually an expression
+                const isExpressionTemplate = templateContent.includes('{#if') ||
+                                           templateContent.includes('{#each') ||
+                                           templateContent.includes('{#else') ||
+                                           templateContent.includes('{#end') ||
+                                           templateContent.includes('..@') ||
+                                           templateContent.includes('@p[') ||
+                                           templateContent.includes('@i') ||
+                                           templateContent.includes('@r');
+
+                const isFilterExpression = templateContent.includes(' like ') ||
+                                         templateContent.includes(' not like ') ||
+                                         templateContent.includes(' in ') ||
+                                         templateContent.includes(' not in ') ||
+                                         templateContent.includes(' is null') ||
+                                         templateContent.includes(' is not null') ||
+                                         templateContent.includes(' and ') ||
+                                         templateContent.includes(' or ') ||
+                                         templateContent.includes(' ci') ||
+                                         templateContent.includes('if ') ||
+                                         templateContent.includes(' then ') ||
+                                         templateContent.includes(' else ') ||
+                                         /\b(StartsWith|EndsWith|Contains|TypeOf|IsDefined|Length|Has|Substring|LastIndexOf|Round|Coalesce)\s*\(/.test(templateContent);
+
+                // Parse as expression if it's in an expression API context
+                // Even simple templates like [{@t:HH:mm:ss}] should be parsed as expressions in ExpressionTemplate
+                if (isExpressionAPI) {
+                    // Parse as expression ONLY - no template parsing for expressions
+                    const expressionParser = new ExpressionParser(templateContent);
+                    const expressionElements = expressionParser.parse();
+
+                    for (let i = 0; i < expressionElements.length; i++) {
+                        const element = expressionElements[i];
+                        const absoluteStart = templateStartOffset + element.startIndex;
+                        const absoluteEnd = templateStartOffset + element.endIndex;
+                        const startPos = editor.document.positionAt(absoluteStart);
+                        const endPos = editor.document.positionAt(absoluteEnd);
+                        const range = new vscode.Range(startPos, endPos);
+
+                        switch (element.classificationType) {
+                            case 'operator':
+                                expressionOperatorDecorations.push({ range });
+                                break;
+                            case 'function':
+                                expressionFunctionDecorations.push({ range });
+                                break;
+                            case 'builtin':
+                                expressionBuiltinDecorations.push({ range });
+                                break;
+                            case 'directive':
+                                expressionDirectiveDecorations.push({ range });
+                                break;
+                            case 'string':
+                                expressionStringDecorations.push({ range });
+                                break;
+                            case 'number':
+                                expressionNumberDecorations.push({ range });
+                                break;
+                            case 'identifier':
+                                expressionIdentifierDecorations.push({ range });
+                                break;
+                            case 'format':
+                                // Use the regular format decoration for consistency
+                                formatDecorations.push({ range });
+                                break;
+                            case 'punctuation':
+                                // Punctuation inherits string color
+                                break;
+                            case 'brace':
+                                braceDecorations.push({ range });
+                                break;
+                        }
+                    }
+                } else {
+                    // Parse as regular template
+                    const properties = parseTemplate(templateContent);
+                    for (const property of properties) {
+                        processTemplateProperty(property, templateStartOffset);
+                    }
+                }
+
+                // Helper function to process template properties
+                function processTemplateProperty(property: any, templateStartOffset: number) {
+                    if (!editor) return;
+
                     const absoluteStart = templateStartOffset + property.startIndex;
                     const absoluteEnd = templateStartOffset + property.endIndex;
 
@@ -129,6 +238,16 @@ export function activate(context: vscode.ExtensionContext) {
         editor.setDecorations(decorationManager.getDecoration('format')!, formatDecorations);
         editor.setDecorations(decorationManager.getDecoration('alignment')!, alignmentDecorations);
         editor.setDecorations(decorationManager.getDecoration('positional')!, positionalDecorations);
+
+        // Apply expression decorations
+        editor.setDecorations(decorationManager.getDecoration('expression.operator')!, expressionOperatorDecorations);
+        editor.setDecorations(decorationManager.getDecoration('expression.function')!, expressionFunctionDecorations);
+        editor.setDecorations(decorationManager.getDecoration('expression.builtin')!, expressionBuiltinDecorations);
+        editor.setDecorations(decorationManager.getDecoration('expression.directive')!, expressionDirectiveDecorations);
+        editor.setDecorations(decorationManager.getDecoration('expression.string')!, expressionStringDecorations);
+        editor.setDecorations(decorationManager.getDecoration('expression.number')!, expressionNumberDecorations);
+        editor.setDecorations(decorationManager.getDecoration('expression.keyword')!, expressionKeywordDecorations);
+        editor.setDecorations(decorationManager.getDecoration('expression.identifier')!, expressionIdentifierDecorations);
     }
 
     updateDecorations();

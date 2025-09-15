@@ -2,10 +2,13 @@ import * as vscode from 'vscode';
 
 export function isSerilogCall(line: string): boolean {
     const patterns = [
-        /\b(Log|logger|_logger)\.(Information|Debug|Warning|Error|Fatal|Verbose)/,
-        /\b(Log|logger|_logger)\.(LogInformation|LogDebug|LogWarning|LogError|LogCritical)/,
+        /\b\w*(Log|Logger|logger|_logger)\w*\.(Information|Debug|Warning|Error|Fatal|Verbose)/,
+        /\b\w*(Log|Logger|logger|_logger)\w*\.(LogInformation|LogDebug|LogWarning|LogError|LogCritical)/,
         /\.WriteTo\.\w+\([^)]*outputTemplate:/,
-        /new\s+ExpressionTemplate\s*\(/
+        /new\s+ExpressionTemplate\s*\(/,
+        /\.Filter\.(ByExcluding|ByIncludingOnly)\s*\(/,
+        /\.Enrich\.(When|WithComputed)\s*\(/,
+        /\.WriteTo\.Conditional\s*\(/
     ];
 
     return patterns.some(pattern => pattern.test(line));
