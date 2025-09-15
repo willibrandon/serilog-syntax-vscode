@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { findSerilogRanges } from './utils/serilogDetector';
+import { StringLiteralParser } from './utils/stringLiteralParser';
 import { parseTemplate } from './parsers/templateParser';
 import { DecorationManager } from './decorations/decorationManager';
 
@@ -7,6 +8,7 @@ export function activate(context: vscode.ExtensionContext) {
     console.log('Serilog extension activated!');
 
     const decorationManager = new DecorationManager();
+    const stringParser = new StringLiteralParser();
 
     function updateDecorations() {
         const editor = vscode.window.activeTextEditor;
@@ -30,13 +32,17 @@ export function activate(context: vscode.ExtensionContext) {
             const lineText = editor.document.getText(range);
             const lineStartOffset = editor.document.offsetAt(range.start);
 
-            // Find string literals in the line (simple approach for now)
-            const stringRegex = /"[^"]*"/g;
-            let stringMatch;
+            // Find string literals in the line using proper parser
+            const stringLiterals = stringParser.findAllStringLiterals(lineText);
 
-            while ((stringMatch = stringRegex.exec(lineText)) !== null) {
-                const templateContent = stringMatch[0].slice(1, -1); // Remove quotes
-                const templateStartOffset = lineStartOffset + stringMatch.index + 1; // +1 for opening quote
+            for (const literal of stringLiterals) {
+                // Skip interpolated strings - Serilog doesn't use them
+                if (literal.type === 'interpolated') {
+                    continue;
+                }
+
+                const templateContent = literal.content;
+                const templateStartOffset = lineStartOffset + literal.contentStart;
 
                 // Parse the template
                 const properties = parseTemplate(templateContent);
