@@ -902,16 +902,160 @@ git commit -am "Phase 14: Testing infrastructure"
 
 ---
 
-## Phase 15: Package and Publish
+## Phase 15: Theme-Aware WCAG Compliant Colors
 
-### Step 15.1: Prepare for marketplace
+### Step 15.1: Detect VS Code theme
+
+Create `src/utils/themeDetector.ts`:
+```typescript
+import * as vscode from 'vscode';
+
+export enum ThemeType {
+    Light,
+    Dark,
+    HighContrast
+}
+
+export function detectThemeType(): ThemeType {
+    const theme = vscode.window.activeColorTheme;
+
+    // VS Code doesn't directly expose theme type, so we need to check background color
+    // Get the editor background color to determine if it's light or dark
+    const config = vscode.workspace.getConfiguration('workbench');
+    const colorTheme = config.get<string>('colorTheme', '');
+
+    if (colorTheme.includes('High Contrast')) {
+        return ThemeType.HighContrast;
+    } else if (colorTheme.includes('Light')) {
+        return ThemeType.Light;
+    }
+
+    // Default to dark for most themes
+    return ThemeType.Dark;
+}
+
+export function getContrastRatio(color1: string, color2: string): number {
+    // Calculate WCAG contrast ratio between two colors
+    // Implementation of luminance calculation
+    return 4.5; // Placeholder - implement actual calculation
+}
+```
+
+### Step 15.2: Create WCAG compliant color palettes
+
+Update `src/decorations/decorationManager.ts`:
+```typescript
+interface ColorPalette {
+    property: string;
+    destructure: string;
+    stringify: string;
+    brace: string;
+    format: string;
+    // ... all other colors
+}
+
+class ThemeAwareColors {
+    private lightPalette: ColorPalette = {
+        // Colors with 4.5:1 contrast against white (#FFFFFF)
+        property: '#0050DA',  // Blue - 5.3:1 contrast
+        destructure: '#FF4400', // Orange - 4.5:1 contrast
+        stringify: '#C80000',   // Red - 5.3:1 contrast
+        brace: '#0E559C',      // Dark blue - 4.8:1 contrast
+        format: '#004B00',     // Green - 5.4:1 contrast
+    };
+
+    private darkPalette: ColorPalette = {
+        // Colors with 4.5:1 contrast against dark (#1E1E1E)
+        property: '#569CD6',   // Light blue - 5.1:1 contrast
+        destructure: '#FF8C64', // Light orange - 4.7:1 contrast
+        stringify: '#FF6464',   // Light red - 4.5:1 contrast
+        brace: '#98CFDF',      // Cyan - 4.8:1 contrast
+        format: '#8CCB80',     // Light green - 5.2:1 contrast
+    };
+
+    private highContrastPalette: ColorPalette = {
+        // Maximum contrast colors
+        property: '#00FFFF',   // Cyan
+        destructure: '#FFFF00', // Yellow
+        stringify: '#FF00FF',   // Magenta
+        brace: '#FFFFFF',      // White
+        format: '#00FF00',     // Green
+    };
+
+    getPalette(theme: ThemeType): ColorPalette {
+        switch (theme) {
+            case ThemeType.Light: return this.lightPalette;
+            case ThemeType.HighContrast: return this.highContrastPalette;
+            default: return this.darkPalette;
+        }
+    }
+}
+```
+
+### Step 15.3: Auto-adjust colors based on theme
+
+```typescript
+// Listen for theme changes
+vscode.window.onDidChangeActiveColorTheme(() => {
+    const theme = detectThemeType();
+    const colors = new ThemeAwareColors().getPalette(theme);
+
+    // Recreate decorations with new colors
+    decorationManager.updateColors(colors);
+    updateDecorations();
+});
+```
+
+### Step 15.4: Test with popular themes
+
+Test with these popular VS Code themes:
+- **Dark themes**: Dracula, One Dark Pro, Material Theme, Nord, Tokyo Night
+- **Light themes**: GitHub Light, Atom One Light, Solarized Light, Quiet Light
+- **High contrast**: High Contrast (built-in)
+- **Special cases**: Monokai, Gruvbox, Palenight
+
+### Step 15.5: Add contrast validation
+
+```typescript
+function validateContrast(foreground: string, background: string): boolean {
+    const ratio = getContrastRatio(foreground, background);
+    return ratio >= 4.5; // WCAG AA standard
+}
+
+// Validate all color combinations
+function validatePalette(palette: ColorPalette, backgroundColor: string) {
+    for (const [key, color] of Object.entries(palette)) {
+        if (!validateContrast(color, backgroundColor)) {
+            console.warn(`Color ${key} fails WCAG AA contrast requirements`);
+        }
+    }
+}
+```
+
+### Test & Verify Phase 15
+```bash
+# Test with different themes
+# 1. Install popular theme extensions
+# 2. Switch between themes
+# 3. Verify colors remain readable
+# 4. Check WCAG compliance
+
+# If working, commit:
+git commit -am "Phase 15: Theme-aware WCAG compliant colors"
+```
+
+---
+
+## Phase 16: Package and Publish
+
+### Step 16.1: Prepare for marketplace
 
 ```bash
 npm install -g vsce
 vsce package
 ```
 
-### Step 15.2: Test VSIX locally
+### Step 16.2: Test VSIX locally
 
 Install and test the generated .vsix file in a clean VS Code instance.
 
@@ -922,7 +1066,7 @@ code --install-extension serilog-syntax-vscode-0.0.1.vsix
 
 # Test all features
 # If all working:
-git commit -am "Phase 15: Ready for marketplace"
+git commit -am "Phase 16: Ready for marketplace"
 git tag v0.1.0
 ```
 

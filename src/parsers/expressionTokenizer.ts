@@ -326,9 +326,10 @@ export class ExpressionTokenizer {
         const quote = this.template[this.position];
         this.position++; // Skip opening quote
 
-        let content = '';
+        let content = quote; // Include opening quote
         while (this.position < this.template.length && this.template[this.position] !== quote) {
             if (this.template[this.position] === '\\' && this.position + 1 < this.template.length) {
+                content += this.template[this.position]; // Include escape char
                 this.position++; // Skip escape char
                 content += this.template[this.position];
             } else {
@@ -338,10 +339,11 @@ export class ExpressionTokenizer {
         }
 
         if (this.position < this.template.length) {
+            content += quote; // Include closing quote
             this.position++; // Skip closing quote
         }
 
-        // Return content without quotes (matching C# implementation)
+        // Return content WITH quotes for proper highlighting
         this.tokens.push({
             type: TokenType.StringLiteral,
             value: content,

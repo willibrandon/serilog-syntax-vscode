@@ -12,6 +12,25 @@ export function activate(context: vscode.ExtensionContext) {
     const stringParser = new StringLiteralParser();
 
     function updateDecorations() {
+        const config = vscode.workspace.getConfiguration('serilog');
+        const enabled = config.get<boolean>('enabled', true);
+
+        if (!enabled) {
+            // Clear all decorations if disabled
+            const editor = vscode.window.activeTextEditor;
+            if (editor) {
+                for (const decorationType of ['property', 'destructure', 'stringify', 'brace', 'format',
+                    'alignment', 'positional', 'expression.operator', 'expression.function',
+                    'expression.builtin', 'expression.directive', 'expression.string',
+                    'expression.number', 'expression.keyword', 'expression.identifier']) {
+                    const decoration = decorationManager.getDecoration(decorationType);
+                    if (decoration) {
+                        editor.setDecorations(decoration, []);
+                    }
+                }
+            }
+            return;
+        }
         const editor = vscode.window.activeTextEditor;
         if (!editor || editor.document.languageId !== 'csharp') {
             return;
@@ -250,10 +269,23 @@ export function activate(context: vscode.ExtensionContext) {
         editor.setDecorations(decorationManager.getDecoration('expression.identifier')!, expressionIdentifierDecorations);
     }
 
+    // Register refresh command
+    const refreshCommand = vscode.commands.registerCommand('serilog.refresh', () => {
+        updateDecorations();
+    });
+    context.subscriptions.push(refreshCommand);
+
     updateDecorations();
     vscode.window.onDidChangeActiveTextEditor(updateDecorations, null, context.subscriptions);
     vscode.workspace.onDidChangeTextDocument(event => {
         if (vscode.window.activeTextEditor && event.document === vscode.window.activeTextEditor.document) {
+            updateDecorations();
+        }
+    }, null, context.subscriptions);
+
+    // Listen for configuration changes
+    vscode.workspace.onDidChangeConfiguration(event => {
+        if (event.affectsConfiguration('serilog')) {
             updateDecorations();
         }
     }, null, context.subscriptions);

@@ -14,7 +14,110 @@
     "commands": [{
       "command": "serilog.test",
       "title": "Test Serilog Extension"
-    }]
+    }, {
+      "command": "serilog.refresh",
+      "title": "Refresh Serilog Highlighting"
+    }],
+    "configuration": {
+      "title": "Serilog Syntax Highlighting",
+      "properties": {
+        "serilog.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable Serilog syntax highlighting"
+        },
+        "serilog.colors.property": {
+          "type": "string",
+          "default": "#569CD6",
+          "description": "Color for Serilog property names (e.g., {Property})",
+          "format": "color"
+        },
+        "serilog.colors.destructure": {
+          "type": "string",
+          "default": "#FF8C64",
+          "description": "Color for destructure operator (@)",
+          "format": "color"
+        },
+        "serilog.colors.stringify": {
+          "type": "string",
+          "default": "#FF6464",
+          "description": "Color for stringify operator ($)",
+          "format": "color"
+        },
+        "serilog.colors.brace": {
+          "type": "string",
+          "default": "#98CFDF",
+          "description": "Color for braces around properties",
+          "format": "color"
+        },
+        "serilog.colors.format": {
+          "type": "string",
+          "default": "#8CCB80",
+          "description": "Color for format specifiers (e.g., :yyyy-MM-dd)",
+          "format": "color"
+        },
+        "serilog.colors.alignment": {
+          "type": "string",
+          "default": "#F87171",
+          "description": "Color for alignment specifiers (e.g., ,10)",
+          "format": "color"
+        },
+        "serilog.colors.positional": {
+          "type": "string",
+          "default": "#AAE3FF",
+          "description": "Color for positional parameters (e.g., {0}, {1})",
+          "format": "color"
+        },
+        "serilog.colors.expression.operator": {
+          "type": "string",
+          "default": "#FF7B72",
+          "description": "Color for expression operators (and, or, not, =, <, >)",
+          "format": "color"
+        },
+        "serilog.colors.expression.function": {
+          "type": "string",
+          "default": "#C896FF",
+          "description": "Color for expression functions (Contains, Substring, etc.)",
+          "format": "color"
+        },
+        "serilog.colors.expression.builtin": {
+          "type": "string",
+          "default": "#DCB4FF",
+          "description": "Color for built-in properties (@t, @l, @m, @x, @p)",
+          "format": "color"
+        },
+        "serilog.colors.expression.directive": {
+          "type": "string",
+          "default": "#F078B4",
+          "description": "Color for expression directives (#if, #else, #each, #end)",
+          "format": "color"
+        },
+        "serilog.colors.expression.string": {
+          "type": "string",
+          "default": "#64C8C8",
+          "description": "Color for string literals in expressions",
+          "format": "color"
+        },
+        "serilog.colors.expression.number": {
+          "type": "string",
+          "default": "#B5CEA8",
+          "description": "Color for number literals in expressions",
+          "format": "color"
+        },
+        "serilog.colors.expression.keyword": {
+          "type": "string",
+          "default": "#569CD6",
+          "description": "Color for expression keywords (null, true, false, if, then, else)",
+          "format": "color"
+        },
+        "serilog.colors.expression.identifier": {
+          "type": "string",
+          "default": "#9CDCFE",
+          "description": "Color for identifiers/property names in expressions",
+          "format": "color"
+        }
+      }
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",
