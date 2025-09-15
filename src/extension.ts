@@ -4,12 +4,19 @@ import { StringLiteralParser } from './utils/stringLiteralParser';
 import { parseTemplate } from './parsers/templateParser';
 import { ExpressionParser } from './parsers/expressionParser';
 import { DecorationManager } from './decorations/decorationManager';
+import { CacheManager } from './utils/cacheManager';
+import { Debouncer } from './utils/debouncer';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Serilog extension activated!');
 
     const decorationManager = new DecorationManager();
     const stringParser = new StringLiteralParser();
+
+    // Performance optimization: caching and debouncing
+    const templateCache = new CacheManager<any[]>(100, 60000); // Max 100 entries, 1 minute expiry
+    const expressionCache = new CacheManager<any[]>(100, 60000);
+    const debouncer = new Debouncer(100); // 100ms delay
 
     function updateDecorations() {
         const config = vscode.workspace.getConfiguration('serilog');
@@ -118,9 +125,16 @@ export function activate(context: vscode.ExtensionContext) {
                 // Parse as expression if it's in an expression API context
                 // Even simple templates like [{@t:HH:mm:ss}] should be parsed as expressions in ExpressionTemplate
                 if (isExpressionAPI) {
-                    // Parse as expression ONLY - no template parsing for expressions
-                    const expressionParser = new ExpressionParser(templateContent);
-                    const expressionElements = expressionParser.parse();
+                    // Check cache first
+                    const cacheKey = `expr:${templateContent}`;
+                    let expressionElements = expressionCache.get(cacheKey);
+
+                    if (!expressionElements) {
+                        // Parse as expression ONLY - no template parsing for expressions
+                        const expressionParser = new ExpressionParser(templateContent);
+                        expressionElements = expressionParser.parse();
+                        expressionCache.set(cacheKey, expressionElements);
+                    }
 
                     for (let i = 0; i < expressionElements.length; i++) {
                         const element = expressionElements[i];
@@ -165,8 +179,16 @@ export function activate(context: vscode.ExtensionContext) {
                         }
                     }
                 } else {
-                    // Parse as regular template
-                    const properties = parseTemplate(templateContent);
+                    // Check cache first
+                    const cacheKey = `tmpl:${templateContent}`;
+                    let properties = templateCache.get(cacheKey);
+
+                    if (!properties) {
+                        // Parse as regular template
+                        properties = parseTemplate(templateContent);
+                        templateCache.set(cacheKey, properties);
+                    }
+
                     for (const property of properties) {
                         processTemplateProperty(property, templateStartOffset);
                     }
@@ -275,11 +297,16 @@ export function activate(context: vscode.ExtensionContext) {
     });
     context.subscriptions.push(refreshCommand);
 
+    // Initial update without debouncing
     updateDecorations();
+
+    // Use immediate update for editor changes
     vscode.window.onDidChangeActiveTextEditor(updateDecorations, null, context.subscriptions);
+
+    // Use debounced update for document changes (while typing)
     vscode.workspace.onDidChangeTextDocument(event => {
         if (vscode.window.activeTextEditor && event.document === vscode.window.activeTextEditor.document) {
-            updateDecorations();
+            debouncer.debounce(updateDecorations);
         }
     }, null, context.subscriptions);
 
@@ -290,9 +317,24 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }, null, context.subscriptions);
 
-    // Dispose decorations when extension is deactivated
+    // Dispose resources when extension is deactivated
     context.subscriptions.push({
-        dispose: () => decorationManager.dispose()
+        dispose: () => {
+            decorationManager.dispose();
+            debouncer.dispose();
+            templateCache.clear();
+            expressionCache.clear();
+        }
+    });
+
+    // Periodically prune expired cache entries (every 5 minutes)
+    const pruneInterval = setInterval(() => {
+        templateCache.pruneExpired();
+        expressionCache.pruneExpired();
+    }, 5 * 60 * 1000);
+
+    context.subscriptions.push({
+        dispose: () => clearInterval(pruneInterval)
     });
 }
 
