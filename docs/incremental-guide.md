@@ -611,7 +611,10 @@ git commit -am "Phase 8: Performance optimization with caching"
 
 ---
 
-## Phase 9: Diagnostics
+## Phase 9: Diagnostics [NOT INCLUDED IN INITIAL RELEASE]
+
+**Status**: Not planned for initial release - may not be implemented
+**Reason**: The reference VS 2022 extension (serilog-syntax) does not provide diagnostic features
 
 ### Step 9.1: Create diagnostics provider
 
@@ -666,7 +669,10 @@ git commit -am "Phase 9: Basic diagnostics"
 
 ---
 
-## Phase 10: Expression Parser
+## Phase 10: Expression Parser [COMPLETED]
+
+**Status**: ✅ COMPLETED
+**Implementation**: Full Serilog.Expressions support with tokenizer and parser
 
 ### Step 10.1: Create expression tokenizer
 
@@ -771,7 +777,10 @@ git commit -am "Phase 11: Semantic tokens provider"
 
 ---
 
-## Phase 12: IntelliSense Support
+## Phase 12: IntelliSense Support [NOT INCLUDED IN INITIAL RELEASE]
+
+**Status**: Not planned for initial release - may not be implemented
+**Reason**: The reference VS 2022 extension (serilog-syntax) does not provide IntelliSense/completion features
 
 ### Step 12.1: Create completion provider
 
