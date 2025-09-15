@@ -2,8 +2,17 @@ import * as vscode from 'vscode';
 
 export function isSerilogCall(line: string): boolean {
     const patterns = [
-        /\b\w*(Log|Logger|logger|_logger)\w*\.(Information|Debug|Warning|Error|Fatal|Verbose)/,
-        /\b\w*(Log|Logger|logger|_logger)\w*\.(LogInformation|LogDebug|LogWarning|LogError|LogCritical)/,
+        // Match any variable ending with log, Log, Logger, logger, _logger, or standalone 'log'
+        /\b(\w*[Ll]og(?:ger)?|\w*_logger|log)\b\.(Information|Debug|Warning|Error|Fatal|Verbose)/,
+        /\b(\w*[Ll]og(?:ger)?|\w*_logger|log)\b\.(LogInformation|LogDebug|LogWarning|LogError|LogCritical)/,
+        // Also match ForContext pattern which is common in Serilog
+        /\b(\w*[Ll]og(?:ger)?|\w*_logger|log)\b\.ForContext/,
+        // Match ANY variable calling Serilog logging methods (like program.Information)
+        /\b\w+\.(Information|Debug|Warning|Error|Fatal|Verbose)\s*\(/,
+        /\b\w+\.(LogInformation|LogDebug|LogWarning|LogError|LogCritical)\s*\(/,
+        // Match continuation lines that start with .Information, .Debug, etc.
+        /^\s*\.(Information|Debug|Warning|Error|Fatal|Verbose)\s*\(/,
+        /^\s*\.(LogInformation|LogDebug|LogWarning|LogError|LogCritical)\s*\(/,
         /\.WriteTo\.\w+\([^)]*outputTemplate:/,
         /new\s+ExpressionTemplate\s*\(/,
         /\.Filter\.(ByExcluding|ByIncludingOnly)\s*\(/,
