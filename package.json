@@ -1,0 +1,28 @@
+{
+  "name": "serilog-syntax-vscode",
+  "displayName": "Serilog Syntax Highlighting",
+  "description": "Syntax highlighting for Serilog message templates and Serilog.Expressions",
+  "version": "0.0.1",
+  "publisher": "mtlog",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": ["Programming Languages"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [{
+      "command": "serilog.test",
+      "title": "Test Serilog Extension"
+    }]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.124",
+    "@types/vscode": "^1.104.0",
+    "typescript": "^5.9.2"
+  }
+}
