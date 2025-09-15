@@ -1,29 +1,46 @@
 import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
-    // Create output channel for debugging
-    const outputChannel = vscode.window.createOutputChannel('Serilog Syntax');
-    outputChannel.appendLine('Serilog Syntax Extension is activating...');
-    outputChannel.show();
-
     console.log('Serilog extension activated!');
 
-    // Show activation message
-    vscode.window.showInformationMessage('Serilog Syntax Extension Activated!');
-
-    // Simple test command to verify extension loads
-    const disposable = vscode.commands.registerCommand('serilog.test', () => {
-        vscode.window.showInformationMessage('Serilog Extension is Working!');
-        outputChannel.appendLine('Test command executed');
+    // Create decoration type - using dark theme colors from original serilog-syntax
+    const propertyDecoration = vscode.window.createTextEditorDecorationType({
+        color: '#569CD6', // PropertyName color from dark theme - RGB(86, 156, 214)
+        fontWeight: 'bold'
     });
 
-    context.subscriptions.push(disposable);
+    function updateDecorations() {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor || editor.document.languageId !== 'csharp') {
+            return;
+        }
 
-    // Log that activation is complete
-    outputChannel.appendLine('Serilog Syntax Extension activation complete!');
-    outputChannel.appendLine('Waiting for C# files to be opened...');
+        const text = editor.document.getText();
+        const decorations: vscode.DecorationOptions[] = [];
+
+        // Find all {Property} patterns
+        const regex = /\{[A-Za-z_][A-Za-z0-9_]*\}/g;
+        let match;
+
+        while ((match = regex.exec(text)) !== null) {
+            const startPos = editor.document.positionAt(match.index + 1); // Skip {
+            const endPos = editor.document.positionAt(match.index + match[0].length - 1); // Skip }
+            decorations.push({ range: new vscode.Range(startPos, endPos) });
+        }
+
+        editor.setDecorations(propertyDecoration, decorations);
+    }
+
+    // Initial update
+    updateDecorations();
+
+    // Register listeners
+    vscode.window.onDidChangeActiveTextEditor(updateDecorations, null, context.subscriptions);
+    vscode.workspace.onDidChangeTextDocument(event => {
+        if (vscode.window.activeTextEditor && event.document === vscode.window.activeTextEditor.document) {
+            updateDecorations();
+        }
+    }, null, context.subscriptions);
 }
 
-export function deactivate() {
-    console.log('Serilog extension deactivated');
-}
+export function deactivate() {}
