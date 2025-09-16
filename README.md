@@ -56,21 +56,35 @@ A Visual Studio Code extension that provides syntax highlighting and enhanced su
 3. Type "Extensions: Install from VSIX..." and select it
 4. Choose the downloaded `.vsix` file
 
-## Configuration
-
-The extension provides extensive customization options. Open VS Code Settings (`Ctrl+,` or `Cmd+,`) and search for "serilog" to see all available options:
+## Customization
 
 ### Basic Settings
 - `serilog.enabled` - Enable/disable Serilog syntax highlighting
 
+### Theme-Aware Colors & Accessibility
+The extension automatically adapts to your VS Code theme with **WCAG AA compliant colors**:
+
+- **Automatic theme detection** - Colors change instantly when switching between Light and Dark themes
+- **WCAG AA accessibility** - All colors maintain 4.5:1+ contrast ratios for excellent readability
+- **Semantic color grouping** - Related elements use harmonious color families:
+  - Properties: Blue family (`{UserId}`, `{Name}`)
+  - Operators: Warm colors (`@`, `$`)
+  - Format specifiers: Green family (`:yyyy-MM-dd`)
+  - Expression functions: Purple family (`StartsWith()`, `Length()`)
+
 ### Color Customization
-- `serilog.colors.property` - Color for property names (e.g., `{Property}`)
-- `serilog.colors.destructure` - Color for destructure operator (`@`)
-- `serilog.colors.stringify` - Color for stringify operator (`$`)
-- `serilog.colors.brace` - Color for braces around properties
-- `serilog.colors.format` - Color for format specifiers (e.g., `:yyyy-MM-dd`)
-- `serilog.colors.alignment` - Color for alignment specifiers (e.g., `,10`)
-- `serilog.colors.positional` - Color for positional parameters (e.g., `{0}`, `{1}`)
+You can customize colors to match your preferences:
+
+1. Open VS Code Settings (`Ctrl+,` or `Cmd+,`)
+2. Search for "serilog" to see all available options
+3. Modify any of these color settings:
+   - `serilog.colors.property` - Color for property names (e.g., `{Property}`)
+   - `serilog.colors.destructure` - Color for destructure operator (`@`)
+   - `serilog.colors.stringify` - Color for stringify operator (`$`)
+   - `serilog.colors.brace` - Color for braces around properties
+   - `serilog.colors.format` - Color for format specifiers (e.g., `:yyyy-MM-dd`)
+   - `serilog.colors.alignment` - Color for alignment specifiers (e.g., `,10`)
+   - `serilog.colors.positional` - Color for positional parameters (e.g., `{0}`, `{1}`)
 
 ### Expression Colors
 - `serilog.colors.expression.operator` - Color for expression operators (`and`, `or`, `not`, etc.)
@@ -81,6 +95,8 @@ The extension provides extensive customization options. Open VS Code Settings (`
 - `serilog.colors.expression.number` - Color for number literals in expressions
 - `serilog.colors.expression.keyword` - Color for keywords (`null`, `true`, `false`, etc.)
 - `serilog.colors.expression.identifier` - Color for identifiers/property names in expressions
+
+**Note**: Custom colors override the automatic theme-aware colors.
 
 ## Getting Started
 
