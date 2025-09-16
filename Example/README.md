@@ -71,22 +71,27 @@ This is a standalone console application that demonstrates all the features of t
 
 Open `Program.cs` in Visual Studio with the Serilog Syntax extension installed to see:
 
-### Message Template Highlighting
-- **Purple braces** `{` `}` around properties
-- **Blue** property names
-- **Dark goldenrod** destructuring `@` and stringification `$` operators
-- **Teal** format specifiers
-- **Red** alignment specifiers
-- **Dark violet** positional indices
+### Message Template Highlighting (Dark Theme)
+- **Light blue** `{` `}` braces around properties (`#98CFDF`)
+- **Blue** property names (`#569CD6`)
+- **Orange/coral** destructuring `@` operator (`#FF8C64`)
+- **Red/orange** stringification `$` operator (`#FF6464`)
+- **Green** format specifiers like `:yyyy-MM-dd` (`#8CCB80`)
+- **Light red** alignment specifiers like `,10` (`#F87171`)
+- **Light blue** positional indices `{0}`, `{1}` (`#AAE3FF`)
 
-### Expression Syntax Highlighting
-- **Orange** for expression operators (`and`, `or`, `not`, `like`, `in`)
-- **Blue** for expression functions (`StartsWith()`, `Contains()`, etc.)
-- **Green** for string literals in expressions
-- **Purple** for numeric literals
-- **Dark cyan** for expression directives (`{#if}`, `{#each}`, `{#end}`)
-- **Dark blue** for built-in properties (`@t`, `@m`, `@l`)
-- **Teal** for property paths in expressions
+### Expression Syntax Highlighting (Dark Theme)
+- **Light red** for expression operators (`and`, `or`, `not`, `like`, `in`) (`#FF7B72`)
+- **Purple** for expression functions (`StartsWith()`, `Contains()`, etc.) (`#C896FF`)
+- **Light purple** for built-in properties (`@t`, `@m`, `@l`) (`#DCB4FF`)
+- **Pink** for expression directives (`{#if}`, `{#each}`, `{#end}`) (`#F078B4`)
+- **Cyan** for string literals in expressions (`#64C8C8`)
+- **Light green** for numeric literals (`#B5CEA8`)
+- **Blue** for expression keywords (`null`, `true`, `false`) (`#569CD6`)
+- **Light cyan** for identifiers/property names in expressions (`#9CDCFE`)
+
+### Light Theme Colors
+Colors automatically adapt for light themes with WCAG AA compliant contrast ratios - darker variants of the same color families for optimal readability on light backgrounds.
 
 ### Interactive Features
 - **Brace matching** when cursor is on `{` or `}`
