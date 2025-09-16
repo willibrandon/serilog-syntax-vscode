@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a VS Code extension project for Serilog syntax highlighting that provides semantic highlighting, diagnostics, and IntelliSense for Serilog message templates and Serilog.Expressions in C#/.NET projects.
+This is a VS Code extension project for Serilog syntax highlighting that provides decoration-based highlighting for Serilog message templates and Serilog.Expressions in C#/.NET projects.
 
 **Current Status**: Fully implemented with decoration-based highlighting, comprehensive parsers, caching, theme management, and testing infrastructure.
 
@@ -31,10 +31,11 @@ The extension follows a modular architecture designed for performance and mainta
 
 ### Key Design Decisions
 
-- **Activation**: On C# language files (`onLanguage:csharp`)
-- **Performance**: Uses incremental parsing and caching to handle large files
-- **Integration**: Uses decoration-based highlighting for full control over appearance
-- **String Detection**: Multi-pass approach (regex → AST → context analysis)
+- **Activation**: On startup for C# language files
+- **Performance**: Uses incremental parsing, caching, and debouncing for large files
+- **Highlighting**: Decoration-based approach for full control over appearance and theme integration
+- **String Detection**: Comprehensive detection of regular, verbatim, and raw string literals
+- **Architecture**: Modular design with separated concerns (parsers, decorations, utilities)
 
 ## Common Commands
 
@@ -98,14 +99,7 @@ Tests should cover:
 - **Performance**: Large files (10K+ lines) under 1 second
 - **Memory**: Cache eviction and no memory leaks
 
-Use the comprehensive test plan in `docs/test.md` for detailed test cases.
-
-## Documentation References
-
-- **Design Document**: `docs/design.md` - Complete architecture and component design
-- **Implementation Guide**: `docs/guide.md` - Detailed implementation instructions
-- **Test Plan**: `docs/test.md` - Comprehensive test cases and strategies
-- **Configuration**: `docs/config.md` - Missing configuration files and setup
+Test coverage includes unit tests, integration tests, and comprehensive real-world scenarios.
 
 ## Important Notes
 
