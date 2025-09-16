@@ -7,6 +7,8 @@ export function isSerilogCall(line: string): boolean {
         /\b(\w*[Ll]og(?:ger)?|\w*_logger|log)\b\.(LogInformation|LogDebug|LogWarning|LogError|LogCritical)/,
         // Also match ForContext pattern which is common in Serilog
         /\b(\w*[Ll]og(?:ger)?|\w*_logger|log)\b\.ForContext/,
+        // Match BeginScope for context logging
+        /\b(\w*[Ll]og(?:ger)?|\w*_logger|log)\b\.BeginScope/,
         // Match ANY variable calling Serilog logging methods (like program.Information)
         /\b\w+\.(Information|Debug|Warning|Error|Fatal|Verbose)\s*\(/,
         /\b\w+\.(LogInformation|LogDebug|LogWarning|LogError|LogCritical)\s*\(/,
