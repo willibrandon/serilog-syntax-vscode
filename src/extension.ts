@@ -6,11 +6,25 @@ import { ExpressionParser } from './parsers/expressionParser';
 import { DecorationManager } from './decorations/decorationManager';
 import { CacheManager } from './utils/cacheManager';
 import { Debouncer } from './utils/debouncer';
+import { ThemeManager } from './utils/themeManager';
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Serilog extension activated!');
+    // Create output channel for logging
+    const outputChannel = vscode.window.createOutputChannel('Serilog Syntax');
+    outputChannel.show();
 
-    const decorationManager = new DecorationManager();
+    const themeManager = new ThemeManager();
+    const currentTheme = themeManager.getCurrentTheme();
+
+    outputChannel.appendLine('=================================');
+    outputChannel.appendLine('Serilog Syntax Highlighting v0.0.1');
+    outputChannel.appendLine('=================================');
+    outputChannel.appendLine(`Extension activated successfully`);
+    outputChannel.appendLine(`Theme: ${currentTheme === 'light' ? 'Light' : 'Dark'} mode`);
+    outputChannel.appendLine(`Repository: https://github.com/willibrandon/serilog-syntax-vscode`);
+    outputChannel.appendLine('');
+
+    const decorationManager = new DecorationManager(themeManager, outputChannel);
     const stringParser = new StringLiteralParser();
 
     // Performance optimization: caching and debouncing
@@ -231,8 +245,33 @@ export function activate(context: vscode.ExtensionContext) {
                     } else if (property.type === 'positional') {
                         // Positional parameter
                         const nameStart = editor.document.positionAt(absoluteStart + 1);
-                        const nameEnd = editor.document.positionAt(absoluteStart + 1 + property.name.length);
+                        let nameEndOffset = absoluteStart + 1 + property.name.length;
+
+                        // Add the positional number itself
+                        const nameEnd = editor.document.positionAt(nameEndOffset);
                         positionalDecorations.push({ range: new vscode.Range(nameStart, nameEnd) });
+
+                        // Check for alignment or format specifier (same as standard properties)
+                        if (property.alignment || property.formatSpecifier) {
+                            // Add alignment decoration
+                            if (property.alignment) {
+                                const alignStart = nameEndOffset; // Starts at comma
+                                const alignEnd = alignStart + 1 + property.alignment.length; // comma + alignment
+                                const alignStartPos = editor.document.positionAt(alignStart);
+                                const alignEndPos = editor.document.positionAt(alignEnd);
+                                alignmentDecorations.push({ range: new vscode.Range(alignStartPos, alignEndPos) });
+                                nameEndOffset = alignEnd;
+                            }
+
+                            // Add format specifier decoration
+                            if (property.formatSpecifier) {
+                                const formatStart = nameEndOffset; // Starts at colon
+                                const formatEnd = formatStart + 1 + property.formatSpecifier.length; // colon + format
+                                const formatStartPos = editor.document.positionAt(formatStart);
+                                const formatEndPos = editor.document.positionAt(formatEnd);
+                                formatDecorations.push({ range: new vscode.Range(formatStartPos, formatEndPos) });
+                            }
+                        }
                     } else {
                         // Standard property
                         const nameStart = editor.document.positionAt(absoluteStart + 1);
@@ -317,13 +356,24 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }, null, context.subscriptions);
 
+    // Listen for theme changes and force refresh
+    vscode.window.onDidChangeActiveColorTheme(() => {
+        // Small delay to let the decorations reinitialize
+        setTimeout(() => {
+            outputChannel.appendLine('Refreshing decorations for new theme...');
+            updateDecorations();
+        }, 100);
+    }, null, context.subscriptions);
+
     // Dispose resources when extension is deactivated
     context.subscriptions.push({
         dispose: () => {
+            outputChannel.appendLine('Extension deactivating...');
             decorationManager.dispose();
             debouncer.dispose();
             templateCache.clear();
             expressionCache.clear();
+            outputChannel.dispose();
         }
     });
 

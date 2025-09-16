@@ -1,78 +1,99 @@
 import * as vscode from 'vscode';
+import { ThemeManager, ThemeColors } from '../utils/themeManager';
 
 export class DecorationManager {
     private decorations: Map<string, vscode.TextEditorDecorationType>;
     private configurationChangeListener: vscode.Disposable | undefined;
+    private themeChangeListener: vscode.Disposable | undefined;
+    private themeManager: ThemeManager;
+    private outputChannel: vscode.OutputChannel | undefined;
 
-    constructor() {
+    constructor(themeManager: ThemeManager, outputChannel?: vscode.OutputChannel) {
         this.decorations = new Map();
+        this.themeManager = themeManager;
+        this.outputChannel = outputChannel;
         this.initializeDecorations();
 
         // Listen for configuration changes
         this.configurationChangeListener = vscode.workspace.onDidChangeConfiguration(e => {
             if (e.affectsConfiguration('serilog')) {
+                this.outputChannel?.appendLine('Configuration changed, updating decorations...');
+                this.reinitializeDecorations();
+            }
+        });
+
+        // Listen for theme changes
+        this.themeChangeListener = vscode.window.onDidChangeActiveColorTheme(() => {
+            if (this.themeManager.updateTheme()) {
+                const newTheme = this.themeManager.getCurrentTheme();
+                this.outputChannel?.appendLine(`Theme changed to ${newTheme === 'light' ? 'Light' : 'Dark'} mode`);
                 this.reinitializeDecorations();
             }
         });
     }
 
     private initializeDecorations() {
-        const config = vscode.workspace.getConfiguration('serilog');
+        const colors = this.themeManager.getColors();
 
-        // Get colors from configuration or use defaults
+        // Log the colors being used
+        const theme = this.themeManager.getCurrentTheme();
+        this.outputChannel?.appendLine(`Initializing decorations for ${theme} theme`);
+        this.outputChannel?.appendLine(`Sample colors: property=${colors.property}, brace=${colors.brace}`);
+
+        // Create decoration types with theme-appropriate colors
         const decorationTypes: [string, vscode.TextEditorDecorationType][] = [
             // Template properties
             ['property', vscode.window.createTextEditorDecorationType({
-                color: config.get<string>('colors.property', '#569CD6'),
+                color: colors.property,
                 fontWeight: 'bold'
             })],
             ['destructure', vscode.window.createTextEditorDecorationType({
-                color: config.get<string>('colors.destructure', '#FF8C64'),
+                color: colors.destructure,
                 fontWeight: 'bold'
             })],
             ['stringify', vscode.window.createTextEditorDecorationType({
-                color: config.get<string>('colors.stringify', '#FF6464'),
+                color: colors.stringify,
                 fontWeight: 'bold'
             })],
             ['brace', vscode.window.createTextEditorDecorationType({
-                color: config.get<string>('colors.brace', '#98CFDF')
+                color: colors.brace
             })],
             ['format', vscode.window.createTextEditorDecorationType({
-                color: config.get<string>('colors.format', '#8CCB80')
+                color: colors.format
             })],
             ['alignment', vscode.window.createTextEditorDecorationType({
-                color: config.get<string>('colors.alignment', '#F87171')
+                color: colors.alignment
             })],
             ['positional', vscode.window.createTextEditorDecorationType({
-                color: config.get<string>('colors.positional', '#AAE3FF')
+                color: colors.positional
             })],
 
             // Expression elements
             ['expression.operator', vscode.window.createTextEditorDecorationType({
-                color: config.get<string>('colors.expression.operator', '#FF7B72')
+                color: colors.expressionOperator
             })],
             ['expression.function', vscode.window.createTextEditorDecorationType({
-                color: config.get<string>('colors.expression.function', '#C896FF')
+                color: colors.expressionFunction
             })],
             ['expression.builtin', vscode.window.createTextEditorDecorationType({
-                color: config.get<string>('colors.expression.builtin', '#DCB4FF'),
+                color: colors.expressionBuiltin,
                 fontWeight: 'bold'
             })],
             ['expression.directive', vscode.window.createTextEditorDecorationType({
-                color: config.get<string>('colors.expression.directive', '#F078B4')
+                color: colors.expressionDirective
             })],
             ['expression.string', vscode.window.createTextEditorDecorationType({
-                color: config.get<string>('colors.expression.string', '#64C8C8')
+                color: colors.expressionString
             })],
             ['expression.number', vscode.window.createTextEditorDecorationType({
-                color: config.get<string>('colors.expression.number', '#B5CEA8')
+                color: colors.expressionNumber
             })],
             ['expression.keyword', vscode.window.createTextEditorDecorationType({
-                color: config.get<string>('colors.expression.keyword', '#569CD6'),
+                color: colors.expressionKeyword,
                 fontWeight: 'bold'
             })],
             ['expression.identifier', vscode.window.createTextEditorDecorationType({
-                color: config.get<string>('colors.expression.identifier', '#9CDCFE')
+                color: colors.expressionIdentifier
             })]
         ];
 
@@ -81,7 +102,7 @@ export class DecorationManager {
         }
     }
 
-    private reinitializeDecorations() {
+    reinitializeDecorations() {
         // Dispose old decorations
         for (const decoration of this.decorations.values()) {
             decoration.dispose();
@@ -112,6 +133,11 @@ export class DecorationManager {
         if (this.configurationChangeListener) {
             this.configurationChangeListener.dispose();
             this.configurationChangeListener = undefined;
+        }
+
+        if (this.themeChangeListener) {
+            this.themeChangeListener.dispose();
+            this.themeChangeListener = undefined;
         }
     }
 }
