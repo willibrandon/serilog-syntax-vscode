@@ -9,10 +9,12 @@ export interface TemplateProperty {
 
 export function parseTemplate(template: string): TemplateProperty[] {
     const properties: TemplateProperty[] = [];
+    // First remove escaped braces from consideration
+    const cleanedTemplate = template.replace(/\{\{|\}\}/g, '  ');
     const regex = /\{([@$])?([A-Za-z_][A-Za-z0-9_]*|\d+)(,([+-]?\d+))?(:[^}]+)?\}/g;
     let match;
 
-    while ((match = regex.exec(template)) !== null) {
+    while ((match = regex.exec(cleanedTemplate)) !== null) {
         const property: TemplateProperty = {
             name: match[2],
             startIndex: match.index,

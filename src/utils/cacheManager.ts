@@ -44,6 +44,15 @@ export class CacheManager<T> {
      * Evicts least recently used items if cache is full
      */
     set(key: string, value: T): void {
+        // Don't store anything if maxSize is 0 or negative
+        if (this.maxSize <= 0) {
+            return;
+        }
+
+        // If updating existing key, preserve its access count
+        const existing = this.cache.get(key);
+        const accessCount = existing ? existing.accessCount : 0;
+
         // If cache is full, remove least recently used item
         if (this.cache.size >= this.maxSize && !this.cache.has(key)) {
             const lruKey = this.findLRU();
@@ -52,10 +61,12 @@ export class CacheManager<T> {
             }
         }
 
+        // Delete and re-add to move to end (most recently used)
+        this.cache.delete(key);
         this.cache.set(key, {
             value,
             timestamp: Date.now(),
-            accessCount: 0
+            accessCount
         });
     }
 
