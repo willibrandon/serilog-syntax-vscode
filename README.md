@@ -217,6 +217,9 @@ npm run compile
 # Run tests
 npm test
 
+# Run benchmarks
+npm run benchmark
+
 # Watch mode for development
 npm run watch
 
