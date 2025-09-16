@@ -2,7 +2,7 @@
   "name": "serilog-syntax-vscode",
   "displayName": "Serilog Syntax Highlighting",
   "description": "Syntax highlighting for Serilog message templates and Serilog.Expressions",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "mtlog",
   "engines": {
     "vscode": "^1.74.0"
