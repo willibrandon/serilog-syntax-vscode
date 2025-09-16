@@ -8,6 +8,7 @@ import { CacheManager } from './utils/cacheManager';
 import { Debouncer } from './utils/debouncer';
 import { ThemeManager } from './utils/themeManager';
 import { SerilogBraceMatchProvider } from './providers/braceMatchProvider';
+import { SerilogNavigationProvider, registerNavigationCommand } from './providers/navigationProvider';
 
 export function activate(context: vscode.ExtensionContext) {
     // Create output channel for logging
@@ -36,6 +37,21 @@ export function activate(context: vscode.ExtensionContext) {
     // Initialize brace matching provider
     const braceMatchProvider = new SerilogBraceMatchProvider();
     context.subscriptions.push(braceMatchProvider);
+
+    // Initialize navigation provider
+    const navigationProvider = new SerilogNavigationProvider();
+    context.subscriptions.push(
+        vscode.languages.registerCodeActionsProvider(
+            'csharp',
+            navigationProvider,
+            {
+                providedCodeActionKinds: SerilogNavigationProvider.providedCodeActionKinds
+            }
+        )
+    );
+
+    // Register navigation command
+    context.subscriptions.push(registerNavigationCommand());
 
     function updateDecorations() {
         const config = vscode.workspace.getConfiguration('serilog');

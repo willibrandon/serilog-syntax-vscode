@@ -42,6 +42,18 @@ A Visual Studio Code extension that provides syntax highlighting and enhanced su
 - Highlighting appears as soon as you close braces `}` (doesn't wait for closing quotes)
 - Supports incomplete strings during editing
 
+### 🧭 Navigation Features
+- **Light bulb suggestions** when hovering over template properties
+- **Navigate to argument** - jump from template properties to their corresponding arguments
+- Click the light bulb and select "Navigate to 'PropertyName' argument"
+
+### 🔍 Brace Matching
+- **Highlight matching braces** when cursor is positioned on `{` or `}`
+- Visual indication of brace pairs in complex templates
+- **Multi-line support** - matches braces across line boundaries in verbatim and raw strings
+- Press **ESC** to temporarily dismiss highlights
+- Helps identify mismatched or nested braces
+
 ## Installation
 
 ### From VS Code Marketplace (Recommended)

@@ -27,6 +27,11 @@
       {
         "command": "serilog.refresh",
         "title": "Refresh Serilog Highlighting"
+      },
+      {
+        "command": "serilog.navigateToArgument",
+        "title": "Navigate to Argument",
+        "category": "Serilog"
       }
     ],
     "configuration": {
