@@ -1,6 +1,6 @@
 {
   "name": "serilog-syntax-vscode",
-  "displayName": "Serilog Syntax Highlighting",
+  "displayName": "Serilog Message Template Syntax",
   "description": "Syntax highlighting for Serilog message templates and Serilog.Expressions",
   "version": "0.1.0",
   "publisher": "mtlog",
