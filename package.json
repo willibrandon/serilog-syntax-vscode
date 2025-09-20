@@ -8,6 +8,7 @@
     "type": "git",
     "url": "https://github.com/willibrandon/serilog-syntax-vscode"
   },
+  "icon": "icon.png",
   "engines": {
     "vscode": "^1.104.0"
   },
