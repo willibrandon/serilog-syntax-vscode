@@ -38,7 +38,7 @@ export class DecorationManager {
         // Log the colors being used
         const theme = this.themeManager.getCurrentTheme();
         this.outputChannel?.appendLine(`Initializing decorations for ${theme} theme`);
-        this.outputChannel?.appendLine(`Sample colors: property=${colors.property}, brace=${colors.brace}`);
+        this.outputChannel?.appendLine(`Sample colors: property=${colors.property}, format=${colors.format}`);
 
         // Create decoration types with theme-appropriate colors
         const decorationTypes: [string, vscode.TextEditorDecorationType][] = [

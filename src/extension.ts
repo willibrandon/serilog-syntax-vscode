@@ -18,8 +18,12 @@ export function activate(context: vscode.ExtensionContext) {
     const themeManager = new ThemeManager();
     const currentTheme = themeManager.getCurrentTheme();
 
+    // Get version from package.json
+    const extension = vscode.extensions.getExtension('mtlog.serilog-syntax-vscode');
+    const version = extension?.packageJSON?.version || 'unknown';
+
     outputChannel.appendLine('=================================');
-    outputChannel.appendLine('Serilog Syntax Highlighting v0.0.1');
+    outputChannel.appendLine(`Serilog Syntax Highlighting v${version}`);
     outputChannel.appendLine('=================================');
     outputChannel.appendLine(`Extension activated successfully`);
     outputChannel.appendLine(`Theme: ${currentTheme === 'light' ? 'Light' : 'Dark'} mode`);
