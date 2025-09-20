@@ -42,6 +42,11 @@
           "default": true,
           "description": "Enable/disable Serilog syntax highlighting"
         },
+        "serilog.propertyArgumentHighlighting": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable property-argument pair highlighting when cursor is positioned on either"
+        },
         "serilog.colors.property": {
           "type": "string",
           "default": "#569CD6",

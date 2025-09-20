@@ -20,10 +20,14 @@ The extension follows a modular architecture designed for performance and mainta
    - `expressionTokenizer.ts` - Tokenizes Serilog.Expressions syntax
    - `stringLiteralParser.ts` - Detects C# string literals (regular, verbatim, raw)
 
-2. **Decorations** (`src/decorations/`) ✅
+2. **Providers** (`src/providers/`) ✅
+   - `navigationProvider.ts` - Code actions for navigating from properties to arguments
+   - `propertyArgumentHighlighter.ts` - Highlights template properties and their corresponding arguments
+
+3. **Decorations** (`src/decorations/`) ✅
    - `decorationManager.ts` - Manages text decorations for highlighting (replaces semantic tokens)
 
-3. **Utilities** (`src/utils/`) ✅
+4. **Utilities** (`src/utils/`) ✅
    - `serilogCallDetector.ts` - Identifies Serilog method calls in C# code
    - `cacheManager.ts` - LRU cache for parsed templates (max 100 entries)
    - `themeManager.ts` - Theme-aware color management
@@ -84,6 +88,8 @@ vsce publish
 - **Theme Management**: Automatic theme detection and WCAG AA compliant colors
 - **Testing Infrastructure**: Jest setup with comprehensive test coverage
 - **Configuration**: Extensive user customization options
+- **Property-Argument Highlighting**: Cursor-based highlighting showing connection between properties and arguments
+- **Navigation Provider**: Code actions to jump from properties to their arguments
 
 ### 🚫 Not Implemented (by design)
 - **Semantic Tokens Provider**: Replaced with decoration-based approach for better control

@@ -7,8 +7,8 @@ import { DecorationManager } from './decorations/decorationManager';
 import { CacheManager } from './utils/cacheManager';
 import { Debouncer } from './utils/debouncer';
 import { ThemeManager } from './utils/themeManager';
-import { SerilogBraceMatchProvider } from './providers/braceMatchProvider';
 import { SerilogNavigationProvider, registerNavigationCommand } from './providers/navigationProvider';
+import { PropertyArgumentHighlighter } from './providers/propertyArgumentHighlighter';
 
 export function activate(context: vscode.ExtensionContext) {
     // Create output channel for logging
@@ -35,8 +35,6 @@ export function activate(context: vscode.ExtensionContext) {
     const debouncer = new Debouncer(100); // 100ms delay
 
     // Initialize brace matching provider
-    const braceMatchProvider = new SerilogBraceMatchProvider();
-    context.subscriptions.push(braceMatchProvider);
 
     // Initialize navigation provider
     const navigationProvider = new SerilogNavigationProvider();
@@ -52,6 +50,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Register navigation command
     context.subscriptions.push(registerNavigationCommand());
+
+    // Initialize property-argument highlighter
+    const propertyArgumentHighlighter = new PropertyArgumentHighlighter();
+    context.subscriptions.push(propertyArgumentHighlighter);
 
     function updateDecorations() {
         const config = vscode.workspace.getConfiguration('serilog');
@@ -373,7 +375,6 @@ export function activate(context: vscode.ExtensionContext) {
     // Listen for cursor position changes to update brace matching
     vscode.window.onDidChangeTextEditorSelection(event => {
         if (event.textEditor === vscode.window.activeTextEditor) {
-            braceMatchProvider.updateBraceMatching(event.textEditor);
         }
     }, null, context.subscriptions);
 
@@ -381,7 +382,6 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.onDidChangeActiveTextEditor(editor => {
         if (editor) {
             updateDecorations();
-            braceMatchProvider.updateBraceMatching(editor);
         }
     }, null, context.subscriptions);
 
