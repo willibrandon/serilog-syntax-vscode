@@ -5,6 +5,16 @@ All notable changes to the Serilog Syntax Highlighting extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-09-21
+
+### Added
+- Brace matching provider for Serilog templates with multi-line support
+- Visual highlighting for matching braces in message templates and expressions
+
+### Fixed
+- Property-argument highlighting now works when LogError has Exception as first parameter
+- Multi-line Serilog call detection now correctly excludes string literals from parenthesis counting
+
 ## [0.1.0] - 2025-09-20
 
 ### Added
