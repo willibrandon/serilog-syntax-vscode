@@ -71,6 +71,19 @@ export class PropertyArgumentHighlighter implements vscode.Disposable {
             return;
         }
 
+        // Check if this is a Serilog.Expressions context where we shouldn't highlight
+        const fullText = document.getText(containingRange);
+        if (fullText.includes('ExpressionTemplate') ||
+            fullText.includes('Filter.ByExcluding') ||
+            fullText.includes('Filter.ByIncludingOnly') ||
+            fullText.includes('Enrich.WithComputed')) {
+            // Don't try to highlight property-argument pairs in expression contexts
+            // ExpressionTemplate: named parameters like 'theme' are NOT property arguments
+            // Filter contexts: don't have traditional arguments after the template string
+            this.clearDecorations();
+            return;
+        }
+
         const text = document.getText(containingRange);
         const rangeStart = document.offsetAt(containingRange.start);
         const cursorOffset = document.offsetAt(position);
@@ -83,16 +96,22 @@ export class PropertyArgumentHighlighter implements vscode.Disposable {
             return;
         }
 
-        // Check if cursor is in a template string
-        const literal = literals[0];
-        if (!literal) {
-            this.clearDecorations();
-            return;
+        // Find the template string (the one that contains properties)
+        // When LogError is called with an Exception, the first string might be the exception message
+        let literal = null;
+        let template = null;
+
+        for (const lit of literals) {
+            const parsed = parseTemplate(lit.content);
+            if (parsed && parsed.length > 0) {
+                // This is the template string with properties
+                literal = lit;
+                template = parsed;
+                break;
+            }
         }
 
-        // Parse the template
-        const template = parseTemplate(literal.content);
-        if (!template || template.length === 0) {
+        if (!literal || !template) {
             this.clearDecorations();
             return;
         }
@@ -296,22 +315,39 @@ export class PropertyArgumentHighlighter implements vscode.Disposable {
     }
 
     private findArgumentPosition(text: string, index: number): { start: number; end: number } | null {
-        // Find the arguments section
-        const match = text.match(/\"[^\"]*\"\s*,(.*)\)/s) ||
-                     text.match(/\@\"[^\"]*\"\s*,(.*)\)/s) ||
-                     text.match(/\"\"\".*?\"\"\"\s*,(.*)\)/s);
+        // First, find all string literals to identify the template string
+        const literals = this.stringParser.findAllStringLiterals(text);
+        let templateLiteral = null;
 
-        if (!match || !match[1]) return null;
+        // Find the template string (the one with properties)
+        for (const lit of literals) {
+            const parsed = parseTemplate(lit.content);
+            if (parsed && parsed.length > 0) {
+                templateLiteral = lit;
+                break;
+            }
+        }
 
-        const argsText = match[1];
-        // Find where the arguments actually start (after the comma following the template string)
-        const templateEndMatch = text.match(/\"[^\"]*\"\s*,/s) ||
-                                text.match(/\@\"[^\"]*\"\s*,/s) ||
-                                text.match(/\"\"\".*?\"\"\"\s*,/s);
+        if (!templateLiteral) return null;
 
-        if (!templateEndMatch) return null;
+        // Find where the template ends (including quotes)
+        let templateEnd = templateLiteral.contentEnd;
+        // Account for closing quote
+        if (templateEnd < text.length && text[templateEnd] === '"') {
+            templateEnd++;
+        }
 
-        const argsStart = text.indexOf(templateEndMatch[0]) + templateEndMatch[0].length;
+        // Find the comma after the template string
+        let commaPos = templateEnd;
+        while (commaPos < text.length && text[commaPos] !== ',') {
+            commaPos++;
+        }
+
+        if (commaPos >= text.length) return null;
+
+        // Arguments start after the comma
+        const argsStart = commaPos + 1;
+        const argsText = text.substring(argsStart);
 
         let currentIndex = 0;
         let argStart = 0;

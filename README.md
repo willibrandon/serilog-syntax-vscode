@@ -47,12 +47,19 @@ A Visual Studio Code extension that provides syntax highlighting and enhanced su
 - **Navigate to argument** - jump from template properties to their corresponding arguments
 - Click the light bulb and select "Navigate to 'PropertyName' argument"
 
+### 🔍 Brace Matching
+- **Highlight matching braces** when cursor is positioned on `{` or `}`
+- Works in all Serilog contexts: message templates, output templates, and Serilog.Expressions
+- **Multi-line support** - matches braces across line boundaries in verbatim and raw strings
+- Uses colored, bold braces for visibility without interfering with other highlighting
+
 ### 🎯 Property-Argument Highlighting
 - **Synchronous highlighting** of template properties and their corresponding arguments
 - Position cursor on a property like `{UserId}` to highlight both the property (including braces) and its argument
 - Position cursor on an argument to highlight it and its template property
 - Includes quotes when highlighting string arguments (e.g., `"userId"`)
 - Helps visualize the connection between template properties and their values
+- Uses background fill to distinguish from brace matching
 
 ## Installation
 

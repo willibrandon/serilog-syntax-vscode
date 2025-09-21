@@ -23,6 +23,7 @@ The extension follows a modular architecture designed for performance and mainta
 2. **Providers** (`src/providers/`) ✅
    - `navigationProvider.ts` - Code actions for navigating from properties to arguments
    - `propertyArgumentHighlighter.ts` - Highlights template properties and their corresponding arguments
+   - `braceMatchProvider.ts` - Highlights matching braces in Serilog contexts
 
 3. **Decorations** (`src/decorations/`) ✅
    - `decorationManager.ts` - Manages text decorations for highlighting (replaces semantic tokens)
@@ -90,6 +91,7 @@ vsce publish
 - **Configuration**: Extensive user customization options
 - **Property-Argument Highlighting**: Cursor-based highlighting showing connection between properties and arguments
 - **Navigation Provider**: Code actions to jump from properties to their arguments
+- **Brace Matching**: Highlights matching braces in all Serilog contexts (templates, expressions, output templates)
 
 ### 🚫 Not Implemented (by design)
 - **Semantic Tokens Provider**: Replaced with decoration-based approach for better control

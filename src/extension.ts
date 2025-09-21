@@ -9,6 +9,7 @@ import { Debouncer } from './utils/debouncer';
 import { ThemeManager } from './utils/themeManager';
 import { SerilogNavigationProvider, registerNavigationCommand } from './providers/navigationProvider';
 import { PropertyArgumentHighlighter } from './providers/propertyArgumentHighlighter';
+import { SerilogBraceMatchProvider } from './providers/braceMatchProvider';
 
 export function activate(context: vscode.ExtensionContext) {
     // Create output channel for logging
@@ -58,6 +59,10 @@ export function activate(context: vscode.ExtensionContext) {
     // Initialize property-argument highlighter
     const propertyArgumentHighlighter = new PropertyArgumentHighlighter();
     context.subscriptions.push(propertyArgumentHighlighter);
+
+    // Initialize brace match provider
+    const braceMatchProvider = new SerilogBraceMatchProvider();
+    context.subscriptions.push(braceMatchProvider);
 
     function updateDecorations() {
         const config = vscode.workspace.getConfiguration('serilog');
@@ -379,6 +384,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Listen for cursor position changes to update brace matching
     vscode.window.onDidChangeTextEditorSelection(event => {
         if (event.textEditor === vscode.window.activeTextEditor) {
+            braceMatchProvider.updateBraceMatching(event.textEditor);
         }
     }, null, context.subscriptions);
 
@@ -386,6 +392,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.onDidChangeActiveTextEditor(editor => {
         if (editor) {
             updateDecorations();
+            braceMatchProvider.updateBraceMatching(editor);
         }
     }, null, context.subscriptions);
 
