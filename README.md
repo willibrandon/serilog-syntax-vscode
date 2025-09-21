@@ -64,10 +64,11 @@ A Visual Studio Code extension that provides syntax highlighting and enhanced su
 ## Installation
 
 ### From VS Code Marketplace (Recommended)
-1. Open VS Code
-2. Press `Ctrl+Shift+X` (or `Cmd+Shift+X` on Mac) to open Extensions view
-3. Search for "Serilog Syntax Highlighting"
-4. Click **Install**
+1. Install directly from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=mtlog.serilog-syntax-vscode)
+2. Or from within VS Code:
+   - Press `Ctrl+Shift+X` (or `Cmd+Shift+X` on Mac) to open Extensions view
+   - Search for "Serilog Syntax Highlighting"
+   - Click **Install**
 
 ### From VSIX File
 1. Download the latest `.vsix` file from the [releases page](../../releases)
