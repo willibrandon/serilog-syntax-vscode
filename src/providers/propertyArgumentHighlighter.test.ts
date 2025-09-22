@@ -295,6 +295,25 @@ describe('PropertyArgumentHighlighter', () => {
         });
     });
 
+    describe('ESC Handler', () => {
+        test('should clear decorations when clearDecorations is called', () => {
+            // Arrange
+            highlighter = new PropertyArgumentHighlighter();
+
+            // Mock active editor
+            (vscode.window as any).activeTextEditor = mockEditor;
+
+            // Act - Clear decorations
+            highlighter.clearDecorations();
+
+            // Assert - Decorations are cleared
+            expect(mockSetDecorations).toHaveBeenCalledWith(
+                expect.anything(),
+                []
+            );
+        });
+    });
+
     describe('LogError with Exception parameter', () => {
         test('should highlight property-argument pairs when Exception is first parameter (single-line)', () => {
             // Arrange

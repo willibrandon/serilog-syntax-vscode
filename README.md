@@ -52,6 +52,7 @@ A Visual Studio Code extension that provides syntax highlighting and enhanced su
 - Works in all Serilog contexts: message templates, output templates, and Serilog.Expressions
 - **Multi-line support** - matches braces across line boundaries in verbatim and raw strings
 - Uses colored, bold braces for visibility without interfering with other highlighting
+- **Press ESC** to temporarily dismiss brace matching highlights
 
 ### 🎯 Property-Argument Highlighting
 - **Synchronous highlighting** of template properties and their corresponding arguments
@@ -60,6 +61,7 @@ A Visual Studio Code extension that provides syntax highlighting and enhanced su
 - Includes quotes when highlighting string arguments (e.g., `"userId"`)
 - Helps visualize the connection between template properties and their values
 - Uses background fill to distinguish from brace matching
+- **Press ESC** to temporarily dismiss property-argument highlights
 
 ## Installation
 

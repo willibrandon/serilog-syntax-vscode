@@ -33,6 +33,18 @@
         "command": "serilog.navigateToArgument",
         "title": "Navigate to Argument",
         "category": "Serilog"
+      },
+      {
+        "command": "serilog.clearHighlights",
+        "title": "Clear Highlights",
+        "category": "Serilog"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "serilog.clearHighlights",
+        "key": "escape",
+        "when": "editorTextFocus && editorLangId == csharp"
       }
     ],
     "configuration": {

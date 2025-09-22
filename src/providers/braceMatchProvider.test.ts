@@ -378,6 +378,67 @@ describe('SerilogBraceMatchProvider', () => {
         });
     });
 
+    describe('ESC Handler', () => {
+        test('should clear highlights when clearHighlights is called', () => {
+            // Arrange
+            const text = 'logger.LogInformation("User {UserId} logged in", userId);';
+
+            // Mock vscode window
+            const mockSetDecorations = jest.fn();
+            const mockEditor: any = {
+                document: {
+                    languageId: 'csharp',
+                    lineAt: jest.fn(() => ({ text: text })),
+                    getText: jest.fn(() => text),
+                    offsetAt: jest.fn((pos: any) => pos.character),
+                    positionAt: jest.fn((offset: number) => new (vscode as any).Position(0, offset))
+                },
+                selection: {
+                    active: new (vscode as any).Position(0, 29) // On { of {UserId}
+                },
+                setDecorations: mockSetDecorations
+            };
+
+            (vscode.window as any).activeTextEditor = mockEditor;
+
+            // Mock isSerilogCall
+            (isSerilogCall as jest.Mock).mockReturnValue(true);
+
+            // Mock string parser
+            const mockFindAllStringLiterals = jest.fn();
+            StringLiteralParser.prototype.findAllStringLiterals = mockFindAllStringLiterals;
+            mockFindAllStringLiterals.mockReturnValue([{
+                type: 'regular',
+                content: 'User {UserId} logged in',
+                contentStart: 23,
+                contentEnd: 47
+            }]);
+
+            const provider = new SerilogBraceMatchProvider();
+
+            // Act - First update to set highlights
+            provider.updateBraceMatching(mockEditor);
+
+            // Assert - Highlights are set
+            expect(mockSetDecorations).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.arrayContaining([
+                    expect.any(Object),
+                    expect.any(Object)
+                ])
+            );
+
+            // Act - Clear highlights
+            provider.clearHighlights();
+
+            // Assert - Highlights are cleared
+            expect(mockSetDecorations).toHaveBeenLastCalledWith(
+                expect.anything(),
+                []
+            );
+        });
+    });
+
     describe('Edge Cases', () => {
         test('should not match when cursor not on brace', () => {
             const lineText = 'logger.LogInformation("User {UserId} logged in", userId);';

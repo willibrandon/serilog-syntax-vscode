@@ -368,6 +368,16 @@ export function activate(context: vscode.ExtensionContext) {
     });
     context.subscriptions.push(refreshCommand);
 
+    // Register ESC handler to clear highlights
+    const clearHighlightsCommand = vscode.commands.registerCommand('serilog.clearHighlights', () => {
+        // Clear brace matching highlights
+        braceMatchProvider.clearHighlights();
+
+        // Clear property-argument highlights
+        propertyArgumentHighlighter.clearDecorations();
+    });
+    context.subscriptions.push(clearHighlightsCommand);
+
     // Initial update without debouncing
     updateDecorations();
 

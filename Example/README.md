@@ -94,11 +94,12 @@ Open `Program.cs` in Visual Studio with the Serilog Syntax extension installed t
 Colors automatically adapt for light themes with WCAG AA compliant contrast ratios - darker variants of the same color families for optimal readability on light backgrounds.
 
 ### Interactive Features
-- **Brace matching** when cursor is on `{` or `}` in any Serilog context
-- **Property-Argument highlighting** when cursor is on a property or argument
-- **Light bulb navigation** from properties to arguments
-- **Immediate highlighting** as you type (before closing quotes)
-- **Multi-line support** for verbatim and raw strings
+- **Brace matching** - Position cursor on `{` or `}` to see matching brace highlighted
+- **Property-argument highlighting** - Click on a property or argument to see its pair highlighted
+- **Light bulb navigation** - Code actions to jump from properties to arguments
+- **ESC to clear** - Press ESC to temporarily dismiss all highlights
+- **Immediate highlighting** - Updates as you type (before closing quotes)
+- **Multi-line support** - Works across verbatim and raw string boundaries
 
 ## Output
 

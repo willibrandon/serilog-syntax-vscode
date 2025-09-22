@@ -85,13 +85,14 @@ vsce publish
 - **Project Setup**: package.json, TypeScript config, webpack bundling, extension entry point
 - **Core Parsing**: Template parser, expression parser & tokenizer, string literal parser, Serilog call detector
 - **Decoration-based Highlighting**: Full highlighting system with decoration manager
+- **Brace Matching**: Real-time brace pair highlighting with multi-line support
+- **Property-Argument Highlighting**: Visual connection between template properties and arguments
+- **Navigation Provider**: Code actions to jump from properties to their arguments
+- **ESC Handler**: Keyboard shortcut (ESC key) to temporarily dismiss highlights
 - **Performance Optimization**: Caching system, debouncing, LRU cache for templates
 - **Theme Management**: Automatic theme detection and WCAG AA compliant colors
 - **Testing Infrastructure**: Jest setup with comprehensive test coverage
 - **Configuration**: Extensive user customization options
-- **Property-Argument Highlighting**: Cursor-based highlighting showing connection between properties and arguments
-- **Navigation Provider**: Code actions to jump from properties to their arguments
-- **Brace Matching**: Highlights matching braces in all Serilog contexts (templates, expressions, output templates)
 
 ### 🚫 Not Implemented (by design)
 - **Semantic Tokens Provider**: Replaced with decoration-based approach for better control

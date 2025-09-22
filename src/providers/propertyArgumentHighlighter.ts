@@ -407,7 +407,7 @@ export class PropertyArgumentHighlighter implements vscode.Disposable {
         editor.setDecorations(this.decorationType, decorations);
     }
 
-    private clearDecorations(): void {
+    public clearDecorations(): void {
         if (vscode.window.activeTextEditor) {
             vscode.window.activeTextEditor.setDecorations(this.decorationType, []);
         }
