@@ -4,7 +4,16 @@
         {
             "type": "npm",
             "script": "watch",
-            "problemMatcher": "$ts-webpack-watch",
+            "problemMatcher": [
+                {
+                    "base": "$tsc-watch",
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": "^webpack \\d+\\.\\d+\\.\\d+",
+                        "endsPattern": "^(webpack \\d+\\.\\d+\\.\\d+ )?compiled|Failed to compile"
+                    }
+                }
+            ],
             "isBackground": true,
             "presentation": {
                 "reveal": "never",
